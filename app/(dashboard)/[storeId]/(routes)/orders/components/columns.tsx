@@ -1,21 +1,26 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef } from "@tanstack/react-table";
 
 export type OrderColumn = {
-  id: string
+  id: string;
+  email: string;
   phone: string;
   address: string;
   isPaid: boolean;
   totalPrice: string;
-  products: string
+  products: string;
   createdAt: string;
-}
+};
 
 export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "products",
     header: "Products",
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
   },
   {
     accessorKey: "phone",
@@ -27,7 +32,7 @@ export const columns: ColumnDef<OrderColumn>[] = [
   },
   {
     accessorKey: "totalPrice",
-    header: "Total Price",
+    header: "Total price",
   },
   {
     accessorKey: "isPaid",

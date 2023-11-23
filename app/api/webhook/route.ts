@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import { stripe } from "@/lib/stripe";
 import prismadb from "@/lib/prismadb";
+import sendMail from "@/lib/sendMail";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -36,6 +37,10 @@ export async function POST(req: Request) {
   const addressString = addressComponents.filter((c) => c !== null).join(", ");
 
   if (event.type === "checkout.session.completed") {
+    const userEmail = session?.customer_details?.email || "";
+    const amount = session?.amount_total || 0;
+    const cus_name = session?.customer_details?.name || "";
+
     const order = await prismadb.order.update({
       where: {
         id: session?.metadata?.orderId,
@@ -53,6 +58,21 @@ export async function POST(req: Request) {
 
     const productIds = order.orderItems.map((orderItem) => orderItem.productId);
 
+    console.log(productIds);
+
+    const productNames = await prismadb.product.findMany({
+      where: {
+        id: {
+          in: [...productIds],
+        },
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    const productNamesString = productNames.map((product) => product.name).join(', ');
+
     await prismadb.product.updateMany({
       where: {
         id: {
@@ -63,6 +83,14 @@ export async function POST(req: Request) {
         // isArchived: true,
       },
     });
+
+    await sendMail(
+      userEmail,
+      amount,
+      cus_name,
+      productNamesString,
+      addressString
+    );
   }
 
   return new NextResponse(null, { status: 200 });

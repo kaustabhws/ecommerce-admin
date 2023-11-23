@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export default async function sendMail(userEmail: string, amount: number, name: string, productNamesString: string, addressString: string) {
   try {
-    const response = await axios.post('http://localhost:3000/api/email', {
+    const response = await axios.post('https://ecommerce-admin-eight-tau.vercel.app/api/email', {
       to: userEmail,
       amount: amount,
       name: name,
